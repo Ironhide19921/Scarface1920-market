@@ -2,3 +2,8 @@ node_modules/
 .wrangler/
 .dev.vars
 __pycache__/
+
+# Build output of data/generate_spanish_cards.py and data/slice_cards.py.
+# Only public/assets/cards/ is actually deployed (see wrangler.toml); this
+# directory just duplicates it and doubles every card-art diff.
+/assets/cards/
