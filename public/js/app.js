@@ -256,12 +256,12 @@
     els.discardCount.textContent = marketState.discard.length;
     els.discardGrid.innerHTML = "";
     // show most recently discarded first
-    [...marketState.discard].reverse().forEach((cardId) => {
+    discardIds().forEach((cardId) => {
       els.discardGrid.appendChild(cardThumbEl(cardId, "discard"));
     });
   }
 
-  function renderPool() {
+  function sortedPoolIds() {
     const query = normalize(els.poolSearch.value.trim());
     let ids = currentPoolIds();
     ids.sort((a, b) => {
@@ -270,8 +270,16 @@
       return ca.name.es.localeCompare(cb.name.es, "es");
     });
     if (query) ids = ids.filter((id) => normalize(cardsById[id].name.es).includes(query));
+    return ids;
+  }
+
+  function discardIds() {
+    return [...marketState.discard].reverse();
+  }
+
+  function renderPool() {
     els.poolGrid.innerHTML = "";
-    for (const id of ids) els.poolGrid.appendChild(cardThumbEl(id, "pool"));
+    for (const id of sortedPoolIds()) els.poolGrid.appendChild(cardThumbEl(id, "pool"));
   }
 
   function renderSelectionBanner() {
@@ -450,16 +458,19 @@
     return entries;
   }
 
+  function zoneEntries(zone) {
+    if (zone === "marketLow" || zone === "marketHigh") return marketCardEntries();
+    if (zone === "discard") return discardIds().map((id) => ({ id, zone: "discard", index: undefined }));
+    if (zone === "pool") return sortedPoolIds().map((id) => ({ id, zone: "pool", index: undefined }));
+    return [];
+  }
+
   function openZoom(cardId, zone, index) {
-    if (zone === "marketLow" || zone === "marketHigh") {
-      const entries = marketCardEntries();
-      const idx = entries.findIndex((e) => e.id === cardId);
-      zoomState = idx >= 0
-        ? { entries, index: idx, carousel: true }
-        : { entries: [{ id: cardId, zone, index }], index: 0, carousel: false };
-    } else {
-      zoomState = { entries: [{ id: cardId, zone, index }], index: 0, carousel: false };
-    }
+    const entries = zoneEntries(zone);
+    const idx = entries.findIndex((e) => e.id === cardId);
+    zoomState = idx >= 0
+      ? { entries, index: idx, carousel: true }
+      : { entries: [{ id: cardId, zone, index }], index: 0, carousel: false };
     renderZoomCard();
     els.zoomModal.hidden = false;
   }
