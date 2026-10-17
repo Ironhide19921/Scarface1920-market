@@ -1,4 +1,4 @@
-name = "scarface-market"
+name = "scarface1920-market"
 main = "src/worker.js"
 compatibility_date = "2024-11-01"
 
@@ -13,4 +13,4 @@ class_name = "MarketRoom"
 
 [[migrations]]
 tag = "v1"
-new_classes = ["MarketRoom"]
+new_sqlite_classes = ["MarketRoom"]
