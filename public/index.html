@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>Mercado de Asociados — Scarface 1920</title>
+<title data-i18n="pageTitle">Mercado de Asociados — Scarface 1920</title>
 <meta name="description" content="Mercado virtual compartido de cartas de Asociado para la partida de Scarface 1920." />
 
 <link rel="manifest" href="/manifest.webmanifest" />
@@ -27,17 +27,22 @@
 
 <div id="landing" class="screen">
   <div class="landing-card">
+    <div class="lang-switch" role="group" aria-label="Idioma / Language">
+      <button type="button" class="lang-btn" data-lang="es">ES</button>
+      <button type="button" class="lang-btn" data-lang="en">EN</button>
+    </div>
+
     <h1 class="brand">SCARFACE <span>1920</span></h1>
-    <p class="subtitle">Mercado de Asociados</p>
+    <p class="subtitle" data-i18n="subtitle">Mercado de Asociados</p>
 
     <div class="landing-actions">
-      <button id="btnCreate" class="btn btn-primary">Crear sala nueva</button>
+      <button id="btnCreate" class="btn btn-primary" data-i18n="createRoom">Crear sala nueva</button>
 
-      <div class="divider"><span>o</span></div>
+      <div class="divider"><span data-i18n="or">o</span></div>
 
       <form id="formJoin" class="join-form">
-        <input id="inputCode" type="text" maxlength="5" placeholder="CÓDIGO DE SALA" autocomplete="off" autocapitalize="characters" />
-        <button type="submit" class="btn btn-secondary">Unirse</button>
+        <input id="inputCode" type="text" maxlength="5" placeholder="CÓDIGO DE SALA" data-i18n-placeholder="roomCodePlaceholder" autocomplete="off" autocapitalize="characters" />
+        <button type="submit" class="btn btn-secondary" data-i18n="join">Unirse</button>
       </form>
     </div>
     <p id="landingError" class="landing-error" hidden></p>
@@ -47,65 +52,75 @@
 <div id="roomScreen" class="screen" hidden>
   <header class="room-header">
     <div class="room-header-left">
-      <span class="brand-mini">SCARFACE 1920</span>
+      <button type="button" id="btnBrandHome" class="brand-mini" title="Volver al inicio" data-i18n-title="backToHomeTitle">SCARFACE 1920</button>
     </div>
     <div class="room-header-center">
-      <button id="btnShowCode" class="room-code" title="Toca para copiar el enlace de la sala">Sala <strong id="roomCodeLabel">----</strong></button>
+      <button id="btnShowCode" class="room-code" title="Toca para copiar el enlace de la sala" data-i18n-title="copyLinkTitle"><span data-i18n="roomLabel">Sala</span> <strong id="roomCodeLabel">----</strong></button>
     </div>
     <div class="room-header-right">
-      <span id="connStatus" class="conn-status conn-off" title="Estado de conexión"></span>
-      <span id="viewerCount" class="viewer-count" title="Jugadores conectados">👥 1</span>
-      <button id="btnReset" class="btn btn-danger btn-small">Reiniciar mercado</button>
+      <span id="connStatus" class="conn-status conn-off" title="Estado de conexión" data-i18n-title="connTitle"></span>
+      <span id="viewerCount" class="viewer-count" title="Jugadores conectados" data-i18n-title="viewersTitle">👥 1</span>
+      <button id="btnReset" class="btn btn-danger btn-small" data-i18n="resetMarket">Reiniciar mercado</button>
     </div>
   </header>
 
   <div id="selectionBanner" class="selection-banner" hidden>
     <span id="selectionText"></span>
-    <button id="btnCancelSelection" class="btn btn-tiny">Cancelar</button>
+    <button id="btnCancelSelection" class="btn btn-tiny" data-i18n="cancel">Cancelar</button>
   </div>
 
   <main class="room-main">
     <section class="market-section">
-      <h2 class="section-title">Mercado</h2>
+      <h2 class="section-title" data-i18n="marketTitle">Mercado</h2>
       <div class="market-row">
         <div class="market-tier">
-          <h3 class="tier-label tier-low">Nivel 1–3</h3>
+          <h3 class="tier-label tier-low" data-i18n="levelLow">Nivel 1–3</h3>
           <div id="marketLow" class="card-grid market-grid-low"></div>
         </div>
         <div class="market-tier">
-          <h3 class="tier-label tier-high">Nivel 4–5</h3>
+          <h3 class="tier-label tier-high" data-i18n="levelHigh">Nivel 4–5</h3>
           <div id="marketHigh" class="card-grid market-grid-high"></div>
         </div>
       </div>
     </section>
 
     <section class="discard-section">
-      <button id="discardPile" class="discard-pile">
-        <span class="discard-pile-icon">🗑</span>
-        <span class="discard-pile-label">Descarte</span>
-        <span id="discardCount" class="discard-pile-count">0</span>
-      </button>
+      <div class="discard-controls">
+        <button id="discardPile" class="discard-pile">
+          <span class="discard-pile-icon">🗑</span>
+          <span class="discard-pile-label" data-i18n="discard">Descarte</span>
+          <span id="discardCount" class="discard-pile-count">0</span>
+        </button>
+        <button id="btnReturnDiscard" class="btn btn-secondary btn-small" title="Devuelve todas las cartas del Descarte a Todas las demás cartas" data-i18n-title="returnAllTitle" data-i18n="returnAll">↩ Devolver todas</button>
+      </div>
       <div id="discardGrid" class="card-grid discard-grid" hidden></div>
     </section>
 
     <section class="pool-section">
       <div class="pool-header">
-        <h2 class="section-title">Todas las demás cartas</h2>
-        <input id="poolSearch" type="search" placeholder="Buscar por nombre…" class="pool-search" />
+        <h2 class="section-title" data-i18n="poolTitle">Todas las demás cartas</h2>
+        <input id="poolSearch" type="search" placeholder="Buscar por nombre…" data-i18n-placeholder="searchPlaceholder" class="pool-search" />
       </div>
-      <div id="poolGrid" class="card-grid pool-grid"></div>
+      <div class="pool-tier">
+        <h3 class="tier-label tier-low" data-i18n="levelLow">Nivel 1–3</h3>
+        <div id="poolGridLow" class="card-grid pool-grid"></div>
+      </div>
+      <div class="pool-tier">
+        <h3 class="tier-label tier-high" data-i18n="levelHigh">Nivel 4–5</h3>
+        <div id="poolGridHigh" class="card-grid pool-grid"></div>
+      </div>
     </section>
   </main>
 </div>
 
 <div id="zoomModal" class="zoom-modal" hidden>
   <div class="zoom-backdrop"></div>
-  <button id="zoomPrev" class="zoom-nav zoom-nav-prev" aria-label="Carta anterior" hidden>‹</button>
+  <button id="zoomPrev" class="zoom-nav zoom-nav-prev" aria-label="Carta anterior" data-i18n-aria="prevCardAria" hidden>‹</button>
   <div class="zoom-content">
-    <button id="zoomClose" class="zoom-close" aria-label="Cerrar">✕</button>
+    <button id="zoomClose" class="zoom-close" aria-label="Cerrar" data-i18n-aria="closeAria">✕</button>
     <div id="zoomCardHost"></div>
   </div>
-  <button id="zoomNext" class="zoom-nav zoom-nav-next" aria-label="Carta siguiente" hidden>›</button>
+  <button id="zoomNext" class="zoom-nav zoom-nav-next" aria-label="Carta siguiente" data-i18n-aria="nextCardAria" hidden>›</button>
 </div>
 
 <div id="confirmModal" class="confirm-modal" hidden>
@@ -113,8 +128,8 @@
   <div class="confirm-box">
     <p id="confirmText"></p>
     <div class="confirm-actions">
-      <button id="confirmCancel" class="btn btn-secondary">Cancelar</button>
-      <button id="confirmOk" class="btn btn-danger">Confirmar</button>
+      <button id="confirmCancel" class="btn btn-secondary" data-i18n="cancel">Cancelar</button>
+      <button id="confirmOk" class="btn btn-danger" data-i18n="confirm">Confirmar</button>
     </div>
   </div>
 </div>

@@ -2,6 +2,138 @@
   "use strict";
 
   const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I to avoid confusion
+  const LANG_STORAGE_KEY = "scarface-lang";
+
+  const STRINGS = {
+    es: {
+      pageTitle: "Mercado de Asociados — Scarface 1920",
+      subtitle: "Mercado de Asociados",
+      createRoom: "Crear sala nueva",
+      or: "o",
+      roomCodePlaceholder: "CÓDIGO DE SALA",
+      join: "Unirse",
+      invalidCode: "Ingresa un código válido (4 a 8 letras/números).",
+      roomLabel: "Sala",
+      backToHomeTitle: "Volver al inicio",
+      copyLinkTitle: "Toca para copiar el enlace de la sala",
+      connTitle: "Estado de conexión",
+      viewersTitle: "Jugadores conectados",
+      resetMarket: "Reiniciar mercado",
+      cancel: "Cancelar",
+      marketTitle: "Mercado",
+      levelLow: "Nivel 1–3",
+      levelHigh: "Nivel 4–5",
+      discard: "Descarte",
+      returnAll: "↩ Devolver todas",
+      returnAllTitle: "Devuelve todas las cartas del Descarte a Todas las demás cartas",
+      poolTitle: "Todas las demás cartas",
+      searchPlaceholder: "Buscar por nombre…",
+      empty: "Vacío",
+      closeAria: "Cerrar",
+      prevCardAria: "Carta anterior",
+      nextCardAria: "Carta siguiente",
+      viewDetailAria: "Ver detalle",
+      selectToMove: "Seleccionar para mover",
+      cancelSelection: "Cancelar selección",
+      moveHere: "Mover aquí",
+      confirm: "Confirmar",
+      resetConfirmText: "¿Reiniciar el mercado? Las 6 cartas actuales pasarán al descarte.",
+      invalidMove: "Ese movimiento no es válido.",
+      invalidMoveServer: "Movimiento no válido.",
+      linkCopied: "Enlace de la sala copiado.",
+      roomCodeToast: (code) => `Código de sala: ${code}`,
+      selectedCard: (name) => `Seleccionado: ${name} — toca el destino (otra carta o un espacio).`,
+      selectedEmpty: "Espacio seleccionado — toca una carta para colocarla ahí.",
+    },
+    en: {
+      pageTitle: "Associate Market — Scarface 1920",
+      subtitle: "Associate Market",
+      createRoom: "Create new room",
+      or: "or",
+      roomCodePlaceholder: "ROOM CODE",
+      join: "Join",
+      invalidCode: "Enter a valid code (4 to 8 letters/numbers).",
+      roomLabel: "Room",
+      backToHomeTitle: "Back to home",
+      copyLinkTitle: "Tap to copy the room link",
+      connTitle: "Connection status",
+      viewersTitle: "Connected players",
+      resetMarket: "Reset market",
+      cancel: "Cancel",
+      marketTitle: "Market",
+      levelLow: "Level 1–3",
+      levelHigh: "Level 4–5",
+      discard: "Discard",
+      returnAll: "↩ Return all",
+      returnAllTitle: "Returns every card from the Discard pile to All other cards",
+      poolTitle: "All other cards",
+      searchPlaceholder: "Search by name…",
+      empty: "Empty",
+      closeAria: "Close",
+      prevCardAria: "Previous card",
+      nextCardAria: "Next card",
+      viewDetailAria: "View detail",
+      selectToMove: "Select to move",
+      cancelSelection: "Cancel selection",
+      moveHere: "Move here",
+      confirm: "Confirm",
+      resetConfirmText: "Reset the market? The 6 current cards will go to the discard pile.",
+      invalidMove: "That move isn't valid.",
+      invalidMoveServer: "Invalid move.",
+      linkCopied: "Room link copied.",
+      roomCodeToast: (code) => `Room code: ${code}`,
+      selectedCard: (name) => `Selected: ${name} — tap the destination (another card or a slot).`,
+      selectedEmpty: "Slot selected — tap a card to place it there.",
+    },
+  };
+
+  let lang = localStorage.getItem(LANG_STORAGE_KEY) === "en" ? "en" : "es";
+
+  function t(key) {
+    return STRINGS[lang][key];
+  }
+
+  function cardName(c) {
+    return (c.name && c.name[lang]) || c.name.es;
+  }
+
+  function cardImageSrc(c) {
+    // The 22 "BB" cards only exist as Spanish prints; the original 60 also
+    // have a clean English-print scan under assets/cards/en/.
+    if (lang === "en" && c.sheet !== undefined) return `assets/cards/en/${c.id}.jpg`;
+    return `assets/cards/${c.id}.jpg`;
+  }
+
+  function applyI18n() {
+    const dict = STRINGS[lang];
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      const key = el.dataset.i18n;
+      if (dict[key] !== undefined) el.textContent = dict[key];
+    });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+      const key = el.dataset.i18nPlaceholder;
+      if (dict[key] !== undefined) el.placeholder = dict[key];
+    });
+    document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+      const key = el.dataset.i18nTitle;
+      if (dict[key] !== undefined) el.title = dict[key];
+    });
+    document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+      const key = el.dataset.i18nAria;
+      if (dict[key] !== undefined) el.setAttribute("aria-label", dict[key]);
+    });
+    document.querySelectorAll(".lang-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.lang === lang);
+    });
+  }
+
+  function setLang(next) {
+    if (next !== "es" && next !== "en") return;
+    lang = next;
+    localStorage.setItem(LANG_STORAGE_KEY, lang);
+    applyI18n();
+  }
 
   const els = {
     landing: document.getElementById("landing"),
@@ -11,6 +143,7 @@
     inputCode: document.getElementById("inputCode"),
     landingError: document.getElementById("landingError"),
 
+    btnBrandHome: document.getElementById("btnBrandHome"),
     roomCodeLabel: document.getElementById("roomCodeLabel"),
     btnShowCode: document.getElementById("btnShowCode"),
     connStatus: document.getElementById("connStatus"),
@@ -27,8 +160,10 @@
     discardPile: document.getElementById("discardPile"),
     discardCount: document.getElementById("discardCount"),
     discardGrid: document.getElementById("discardGrid"),
+    btnReturnDiscard: document.getElementById("btnReturnDiscard"),
 
-    poolGrid: document.getElementById("poolGrid"),
+    poolGridLow: document.getElementById("poolGridLow"),
+    poolGridHigh: document.getElementById("poolGridHigh"),
     poolSearch: document.getElementById("poolSearch"),
 
     zoomModal: document.getElementById("zoomModal"),
@@ -115,12 +250,16 @@
     e.preventDefault();
     const code = els.inputCode.value.trim().toUpperCase();
     if (!/^[A-Z0-9]{4,8}$/.test(code)) {
-      els.landingError.textContent = "Ingresa un código válido (4 a 8 letras/números).";
+      els.landingError.textContent = t("invalidCode");
       els.landingError.hidden = false;
       return;
     }
     els.landingError.hidden = true;
     goToRoom(code);
+  });
+
+  document.querySelectorAll(".lang-btn").forEach((btn) => {
+    btn.addEventListener("click", () => setLang(btn.dataset.lang));
   });
 
   // ---------- Room entry ----------
@@ -135,7 +274,7 @@
 
   function connectWS() {
     const proto = location.protocol === "https:" ? "wss:" : "ws:";
-    ws = new WebSocket(`${proto}//${location.host}/api/room/${roomCode}/ws`);
+    ws = new WebSocket(`${proto}//${location.host}/api/room/${roomCode}/ws?lang=${lang}`);
     setConnStatus("off");
 
     ws.addEventListener("open", () => {
@@ -153,11 +292,37 @@
     ws.addEventListener("error", () => setConnStatus("err"));
   }
 
+  let reconnectTimer = null;
+
   function scheduleReconnect() {
     setConnStatus("off");
-    setTimeout(connectWS, reconnectDelay);
+    reconnectTimer = setTimeout(connectWS, reconnectDelay);
     reconnectDelay = Math.min(reconnectDelay * 1.6, 10000);
   }
+
+  function leaveRoom() {
+    clearTimeout(reconnectTimer);
+    if (ws) {
+      ws.removeEventListener("close", scheduleReconnect);
+      ws.close();
+      ws = null;
+    }
+    closeZoom();
+    els.confirmModal.hidden = true;
+    selected = null;
+    marketState = { marketLow: [null, null, null, null], marketHigh: [null, null], discard: [] };
+    roomCode = null;
+    els.discardGrid.hidden = true;
+    els.poolSearch.value = "";
+    els.roomScreen.hidden = true;
+    els.landing.hidden = false;
+    renderSelectionBanner();
+    const url = new URL(location.href);
+    url.searchParams.delete("room");
+    history.replaceState(null, "", url);
+  }
+
+  els.btnBrandHome.addEventListener("click", leaveRoom);
 
   function setConnStatus(state) {
     els.connStatus.classList.remove("conn-on", "conn-off", "conn-err");
@@ -167,12 +332,19 @@
   function handleServerMessage(msg) {
     if (msg.type === "state") {
       marketState = msg.market;
+      // The room's language is decided once by whoever created it; if it
+      // differs from this client's preference, follow the room's for this
+      // session so everyone sees a consistent card set.
+      if ((msg.lang === "en" || msg.lang === "es") && msg.lang !== lang) {
+        lang = msg.lang;
+        applyI18n();
+      }
       if (typeof msg.viewers === "number") setViewers(msg.viewers);
       renderAll();
     } else if (msg.type === "viewers") {
       setViewers(msg.viewers);
     } else if (msg.type === "error") {
-      flashToast(msg.message || "Movimiento no válido.");
+      flashToast(msg.message || t("invalidMoveServer"));
     }
   }
 
@@ -198,7 +370,10 @@
       ...marketState.marketHigh.filter(Boolean),
       ...marketState.discard,
     ]);
-    return Object.keys(cardsById).filter((id) => !used.has(id));
+    let ids = Object.keys(cardsById).filter((id) => !used.has(id));
+    // English mode only offers the original 60-card set from the pool.
+    if (lang === "en") ids = ids.filter((id) => cardsById[id].sheet !== undefined);
+    return ids;
   }
 
   function cardThumbEl(cardId, zone, index) {
@@ -210,10 +385,11 @@
     div.dataset.zone = zone;
     if (index !== undefined) div.dataset.index = index;
     if (isSelectedCard(cardId, zone, index)) div.classList.add("selected");
-    div.title = `${c.name.es} (${starString(c.level)})`;
+    const name = cardName(c);
+    div.title = `${name} (${starString(c.level)})`;
     div.innerHTML = `
-      <div class="card-art-wrap"><img src="assets/cards/${cardId}.jpg" alt="${c.name.es}" loading="lazy" /></div>
-      <button class="card-zoom-btn" data-zoomid="${cardId}" aria-label="Ver detalle">🔍</button>
+      <div class="card-art-wrap"><img src="${cardImageSrc(c)}" alt="${name}" loading="lazy" /></div>
+      <button class="card-zoom-btn" data-zoomid="${cardId}" aria-label="${t("viewDetailAria")}">🔍</button>
     `;
     return div;
   }
@@ -225,7 +401,7 @@
     div.dataset.emptyzone = zone;
     div.dataset.emptyindex = index;
     if (isSelectedEmpty(zone, index)) div.classList.add("selected");
-    div.textContent = "Vacío";
+    div.textContent = t("empty");
     return div;
   }
 
@@ -254,6 +430,7 @@
 
   function renderDiscard() {
     els.discardCount.textContent = marketState.discard.length;
+    els.btnReturnDiscard.disabled = marketState.discard.length === 0;
     els.discardGrid.innerHTML = "";
     // show most recently discarded first
     discardIds().forEach((cardId) => {
@@ -267,9 +444,9 @@
     ids.sort((a, b) => {
       const ca = cardsById[a], cb = cardsById[b];
       if (ca.level !== cb.level) return ca.level - cb.level;
-      return ca.name.es.localeCompare(cb.name.es, "es");
+      return cardName(ca).localeCompare(cardName(cb), lang);
     });
-    if (query) ids = ids.filter((id) => normalize(cardsById[id].name.es).includes(query));
+    if (query) ids = ids.filter((id) => normalize(cardName(cardsById[id])).includes(query));
     return ids;
   }
 
@@ -278,8 +455,13 @@
   }
 
   function renderPool() {
-    els.poolGrid.innerHTML = "";
-    for (const id of sortedPoolIds()) els.poolGrid.appendChild(cardThumbEl(id, "pool"));
+    const ids = sortedPoolIds();
+    const low = ids.filter((id) => tierOfLevel(cardsById[id].level) === "low");
+    const high = ids.filter((id) => tierOfLevel(cardsById[id].level) === "high");
+    els.poolGridLow.innerHTML = "";
+    for (const id of low) els.poolGridLow.appendChild(cardThumbEl(id, "pool"));
+    els.poolGridHigh.innerHTML = "";
+    for (const id of high) els.poolGridHigh.appendChild(cardThumbEl(id, "pool"));
   }
 
   function renderSelectionBanner() {
@@ -291,9 +473,9 @@
     els.btnCancelSelection.hidden = false;
     if (selected.kind === "card") {
       const c = cardsById[selected.cardId];
-      els.selectionText.textContent = `Seleccionado: ${c.name.es} — toca el destino (otra carta o un espacio).`;
+      els.selectionText.textContent = t("selectedCard")(cardName(c));
     } else {
-      els.selectionText.textContent = "Espacio seleccionado — toca una carta para colocarla ahí.";
+      els.selectionText.textContent = t("selectedEmpty");
     }
   }
 
@@ -393,7 +575,7 @@
       selected = null;
       renderSelectionBanner();
     } else {
-      flashToast("Ese movimiento no es válido.");
+      flashToast(t("invalidMove"));
     }
   }
 
@@ -458,15 +640,20 @@
     return entries;
   }
 
-  function zoneEntries(zone) {
+  function zoneEntries(zone, cardId) {
     if (zone === "marketLow" || zone === "marketHigh") return marketCardEntries();
     if (zone === "discard") return discardIds().map((id) => ({ id, zone: "discard", index: undefined }));
-    if (zone === "pool") return sortedPoolIds().map((id) => ({ id, zone: "pool", index: undefined }));
+    if (zone === "pool") {
+      const tier = cardId ? tierOfLevel(cardsById[cardId].level) : null;
+      return sortedPoolIds()
+        .filter((id) => !tier || tierOfLevel(cardsById[id].level) === tier)
+        .map((id) => ({ id, zone: "pool", index: undefined }));
+    }
     return [];
   }
 
   function openZoom(cardId, zone, index) {
-    const entries = zoneEntries(zone);
+    const entries = zoneEntries(zone, cardId);
     const idx = entries.findIndex((e) => e.id === cardId);
     zoomState = idx >= 0
       ? { entries, index: idx, carousel: true }
@@ -480,11 +667,11 @@
     const c = cardsById[entry.id];
     if (!c) return;
     const alreadySelected = isSelectedCard(entry.id, entry.zone, entry.index);
-    const label = !selected ? "Seleccionar para mover" : (alreadySelected ? "Cancelar selección" : "Mover aquí");
+    const label = !selected ? t("selectToMove") : (alreadySelected ? t("cancelSelection") : t("moveHere"));
     const btnClass = alreadySelected ? "btn-secondary" : "btn-primary";
     els.zoomCardHost.innerHTML = `
       <div class="zoom-card">
-        <img src="assets/cards/${c.id}.jpg" alt="${c.name.es}" />
+        <img src="${cardImageSrc(c)}" alt="${cardName(c)}" />
       </div>
       <div class="zoom-actions">
         <button type="button" class="btn ${btnClass} zoom-action-btn">${label}</button>
@@ -536,8 +723,14 @@
     els.confirmCancel.addEventListener("click", cancelHandler);
   }
 
+  els.btnReturnDiscard.addEventListener("click", () => {
+    const ids = [...marketState.discard];
+    for (const id of ids) sendMove(id, { zone: "pool" });
+    clearSelection();
+  });
+
   els.btnReset.addEventListener("click", () => {
-    openConfirm("¿Reiniciar el mercado? Las 6 cartas actuales pasarán al descarte.", () => {
+    openConfirm(t("resetConfirmText"), () => {
       sendReset();
       clearSelection();
     });
@@ -554,9 +747,9 @@
     url.searchParams.set("room", roomCode);
     try {
       await navigator.clipboard.writeText(url.toString());
-      flashToast("Enlace de la sala copiado.");
+      flashToast(t("linkCopied"));
     } catch {
-      flashToast(`Código de sala: ${roomCode}`);
+      flashToast(t("roomCodeToast")(roomCode));
     }
   });
 
@@ -569,8 +762,11 @@
   }
 
   (async function boot() {
+    applyI18n();
     await loadCards();
+    // Always show the landing screen (and its language picker) first, even
+    // for a shared room link - just prefill the code so joining is one click.
     const code = getRoomFromUrl();
-    if (code) enterRoom(code);
+    if (code) els.inputCode.value = code;
   })();
 })();
