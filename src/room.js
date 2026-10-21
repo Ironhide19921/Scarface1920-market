@@ -1,25 +1,11 @@
-import {
-  ALL_IDS,
-  LOW_IDS,
-  HIGH_IDS,
-  LOW_IDS_ORIGINAL,
-  HIGH_IDS_ORIGINAL,
-  tierOf,
-  isOriginal,
-} from "./cards-meta.js";
+import { ALL_IDS, LOW_IDS, HIGH_IDS, tierOf } from "./cards-meta.js";
 
 const LOW_SLOTS = 4;
 const HIGH_SLOTS = 2;
 
 const MSG = {
-  es: {
-    tierMismatch: "Esa carta no corresponde a ese nivel del mercado.",
-    notAvailable: "Esta sala es solo con las 60 cartas originales; esa carta no está disponible.",
-  },
-  en: {
-    tierMismatch: "That card doesn't belong in that market tier.",
-    notAvailable: "This room only uses the original 60 cards; that card isn't available.",
-  },
+  es: { tierMismatch: "Esa carta no corresponde a ese nivel del mercado." },
+  en: { tierMismatch: "That card doesn't belong in that market tier." },
 };
 
 function shuffle(arr) {
@@ -41,50 +27,27 @@ export class MarketRoom {
     this._ready = null;
   }
 
-  // The room's language/card-set is decided the first time it's ever opened
-  // (by whoever creates it) and then persisted, so later joiners with a
-  // different client preference don't change what cards are in play.
+  // The room's language is decided the first time it's ever opened (by
+  // whoever creates it) and then persisted, so later joiners with a
+  // different client preference get their UI synced to match instead.
+  // Every card is available in both languages, so this only affects text.
   ensureReady(requestedLang) {
     if (!this._ready) {
       this._ready = this.state.blockConcurrencyWhile(async () => {
         const storedMarket = await this.state.storage.get("market");
         const storedLang = await this.state.storage.get("lang");
         this.lang = storedLang || requestedLang || "es";
-        this.market = storedMarket || this.dealInitialMarket(this.lang);
-
-        // Rooms that existed before the language feature (or before this
-        // room's lang was ever persisted) may already have a non-original
-        // "BB" card sitting in the market/discard from before the English
-        // restriction applied. Purge those back to the (implicit) pool so
-        // an English room never actually shows one.
-        let changed = false;
-        if (this.lang === "en") {
-          for (const zone of ["marketLow", "marketHigh"]) {
-            this.market[zone] = this.market[zone].map((id) => {
-              if (id && !isOriginal(id)) {
-                changed = true;
-                return null;
-              }
-              return id;
-            });
-          }
-          const cleanDiscard = this.market.discard.filter((id) => isOriginal(id));
-          if (cleanDiscard.length !== this.market.discard.length) {
-            this.market.discard = cleanDiscard;
-            changed = true;
-          }
-        }
-
-        if (!storedMarket || changed) await this.state.storage.put("market", this.market);
+        this.market = storedMarket || this.dealInitialMarket();
+        if (!storedMarket) await this.state.storage.put("market", this.market);
         if (!storedLang) await this.state.storage.put("lang", this.lang);
       });
     }
     return this._ready;
   }
 
-  dealInitialMarket(lang) {
-    const low = shuffle(lang === "en" ? LOW_IDS_ORIGINAL : LOW_IDS);
-    const high = shuffle(lang === "en" ? HIGH_IDS_ORIGINAL : HIGH_IDS);
+  dealInitialMarket() {
+    const low = shuffle(LOW_IDS);
+    const high = shuffle(HIGH_IDS);
     return {
       marketLow: low.slice(0, LOW_SLOTS),
       marketHigh: high.slice(0, HIGH_SLOTS),
@@ -159,12 +122,6 @@ export class MarketRoom {
     if (!ALL_IDS.includes(cardId)) return;
     const from = this.locate(cardId);
     if (!from) return;
-
-    const entersTrackedZone = targetZone === "marketLow" || targetZone === "marketHigh" || targetZone === "discard";
-    if (this.lang === "en" && entersTrackedZone && !isOriginal(cardId)) {
-      this.send(ws, { type: "error", message: MSG.en.notAvailable });
-      return;
-    }
 
     if ((targetZone === "marketLow" || targetZone === "marketHigh")) {
       const wantTier = targetZone === "marketLow" ? "low" : "high";

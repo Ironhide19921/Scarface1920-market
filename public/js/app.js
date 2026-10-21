@@ -98,9 +98,7 @@
   }
 
   function cardImageSrc(c) {
-    // The 22 "BB" cards only exist as Spanish prints; the original 60 also
-    // have a clean English-print scan under assets/cards/en/.
-    if (lang === "en" && c.sheet !== undefined) return `assets/cards/en/${c.id}.jpg`;
+    if (lang === "en") return `assets/cards/en/${c.id}.jpg`;
     return `assets/cards/${c.id}.jpg`;
   }
 
@@ -370,10 +368,7 @@
       ...marketState.marketHigh.filter(Boolean),
       ...marketState.discard,
     ]);
-    let ids = Object.keys(cardsById).filter((id) => !used.has(id));
-    // English mode only offers the original 60-card set from the pool.
-    if (lang === "en") ids = ids.filter((id) => cardsById[id].sheet !== undefined);
-    return ids;
+    return Object.keys(cardsById).filter((id) => !used.has(id));
   }
 
   function cardThumbEl(cardId, zone, index) {
