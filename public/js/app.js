@@ -38,6 +38,10 @@
       moveHere: "Mover aquí",
       confirm: "Confirmar",
       resetConfirmText: "¿Reiniciar el mercado? Las 6 cartas actuales pasarán al descarte.",
+      chooseCardSet: "Elegí qué cartas usará esta sala:",
+      cardSetCommon: "Cartas Comunes",
+      cardSetNightDeck: "Cartas Night Deck",
+      cardSetBoth: "Ambas",
       invalidMove: "Ese movimiento no es válido.",
       invalidMoveServer: "Movimiento no válido.",
       linkCopied: "Enlace de la sala copiado.",
@@ -78,6 +82,10 @@
       moveHere: "Move here",
       confirm: "Confirm",
       resetConfirmText: "Reset the market? The 6 current cards will go to the discard pile.",
+      chooseCardSet: "Choose which cards this room will use:",
+      cardSetCommon: "Common cards",
+      cardSetNightDeck: "Night Deck cards",
+      cardSetBoth: "Both",
       invalidMove: "That move isn't valid.",
       invalidMoveServer: "Invalid move.",
       linkCopied: "Room link copied.",
@@ -98,8 +106,16 @@
   }
 
   function cardImageSrc(c) {
+    if (c.set === "ND") return `assets/cards/nd/${c.id}.jpg`;
     if (lang === "en") return `assets/cards/en/${c.id}.jpg`;
     return `assets/cards/${c.id}.jpg`;
+  }
+
+  function idsForCardSet(cardSet) {
+    const ids = Object.keys(cardsById);
+    if (cardSet === "nightdeck") return ids.filter((id) => cardsById[id].set === "ND");
+    if (cardSet === "both") return ids;
+    return ids.filter((id) => cardsById[id].set !== "ND");
   }
 
   function applyI18n() {
@@ -174,6 +190,9 @@
     confirmText: document.getElementById("confirmText"),
     confirmOk: document.getElementById("confirmOk"),
     confirmCancel: document.getElementById("confirmCancel"),
+
+    cardSetModal: document.getElementById("cardSetModal"),
+    cardSetCancel: document.getElementById("cardSetCancel"),
   };
 
   let cardsById = {};     // id -> card data (bilingual)
@@ -182,6 +201,7 @@
   let ws = null;
   let reconnectDelay = 1000;
   let roomCode = null;
+  let activeCardSet = "common"; // "common" | "nightdeck" | "both" - fixed per room
 
   // ---------- Utilities ----------
 
@@ -241,7 +261,15 @@
   // ---------- Landing ----------
 
   els.btnCreate.addEventListener("click", () => {
-    goToRoom(randomCode());
+    if (lang === "en") {
+      openCardSetModal((set) => {
+        activeCardSet = set;
+        goToRoom(randomCode());
+      });
+    } else {
+      activeCardSet = "common";
+      goToRoom(randomCode());
+    }
   });
 
   els.formJoin.addEventListener("submit", (e) => {
@@ -272,7 +300,7 @@
 
   function connectWS() {
     const proto = location.protocol === "https:" ? "wss:" : "ws:";
-    ws = new WebSocket(`${proto}//${location.host}/api/room/${roomCode}/ws?lang=${lang}`);
+    ws = new WebSocket(`${proto}//${location.host}/api/room/${roomCode}/ws?lang=${lang}&set=${activeCardSet}`);
     setConnStatus("off");
 
     ws.addEventListener("open", () => {
@@ -310,6 +338,7 @@
     selected = null;
     marketState = { marketLow: [null, null, null, null], marketHigh: [null, null], discard: [] };
     roomCode = null;
+    activeCardSet = "common";
     els.discardGrid.hidden = true;
     els.poolSearch.value = "";
     els.roomScreen.hidden = true;
@@ -336,6 +365,9 @@
       if ((msg.lang === "en" || msg.lang === "es") && msg.lang !== lang) {
         lang = msg.lang;
         applyI18n();
+      }
+      if (["common", "nightdeck", "both"].includes(msg.cardSet)) {
+        activeCardSet = msg.cardSet;
       }
       if (typeof msg.viewers === "number") setViewers(msg.viewers);
       renderAll();
@@ -368,7 +400,7 @@
       ...marketState.marketHigh.filter(Boolean),
       ...marketState.discard,
     ]);
-    return Object.keys(cardsById).filter((id) => !used.has(id));
+    return idsForCardSet(activeCardSet).filter((id) => !used.has(id));
   }
 
   function cardThumbEl(cardId, zone, index) {
@@ -716,6 +748,27 @@
     const cancelHandler = () => cleanup();
     els.confirmOk.addEventListener("click", okHandler);
     els.confirmCancel.addEventListener("click", cancelHandler);
+  }
+
+  function openCardSetModal(onChoose) {
+    els.cardSetModal.hidden = false;
+    const buttons = els.cardSetModal.querySelectorAll("[data-set]");
+    const backdrop = els.cardSetModal.querySelector(".zoom-backdrop");
+    const cleanup = () => {
+      els.cardSetModal.hidden = true;
+      buttons.forEach((btn) => btn.removeEventListener("click", choiceHandler));
+      els.cardSetCancel.removeEventListener("click", cancelHandler);
+      backdrop.removeEventListener("click", cancelHandler);
+    };
+    const choiceHandler = (e) => {
+      const set = e.currentTarget.dataset.set;
+      cleanup();
+      onChoose(set);
+    };
+    const cancelHandler = () => cleanup();
+    buttons.forEach((btn) => btn.addEventListener("click", choiceHandler));
+    els.cardSetCancel.addEventListener("click", cancelHandler);
+    backdrop.addEventListener("click", cancelHandler);
   }
 
   els.btnReturnDiscard.addEventListener("click", () => {

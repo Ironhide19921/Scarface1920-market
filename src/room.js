@@ -1,11 +1,18 @@
-import { ALL_IDS, LOW_IDS, HIGH_IDS, tierOf } from "./cards-meta.js";
+import { LOW_IDS, HIGH_IDS, idsForCardSet, tierOf } from "./cards-meta.js";
 
 const LOW_SLOTS = 4;
 const HIGH_SLOTS = 2;
+const CARD_SETS = ["common", "nightdeck", "both"];
 
 const MSG = {
-  es: { tierMismatch: "Esa carta no corresponde a ese nivel del mercado." },
-  en: { tierMismatch: "That card doesn't belong in that market tier." },
+  es: {
+    tierMismatch: "Esa carta no corresponde a ese nivel del mercado.",
+    notAvailable: "Esa carta no está disponible en esta sala.",
+  },
+  en: {
+    tierMismatch: "That card doesn't belong in that market tier.",
+    notAvailable: "That card isn't available in this room.",
+  },
 };
 
 function shuffle(arr) {
@@ -24,30 +31,34 @@ export class MarketRoom {
     this.sockets = new Set();
     this.market = null; // { marketLow: [id|null x4], marketHigh: [id|null x2], discard: [id,...] }
     this.lang = null; // "es" | "en" - fixed for the room's lifetime once first dealt
+    this.cardSet = null; // "common" | "nightdeck" | "both" - fixed for the room's lifetime
     this._ready = null;
   }
 
-  // The room's language is decided the first time it's ever opened (by
-  // whoever creates it) and then persisted, so later joiners with a
-  // different client preference get their UI synced to match instead.
-  // Every card is available in both languages, so this only affects text.
-  ensureReady(requestedLang) {
+  // The room's language and card set are decided the first time it's ever
+  // opened (by whoever creates it) and then persisted, so later joiners with
+  // a different client preference get their UI synced to match instead.
+  ensureReady(requestedLang, requestedSet) {
     if (!this._ready) {
       this._ready = this.state.blockConcurrencyWhile(async () => {
         const storedMarket = await this.state.storage.get("market");
         const storedLang = await this.state.storage.get("lang");
+        const storedSet = await this.state.storage.get("cardSet");
         this.lang = storedLang || requestedLang || "es";
+        this.cardSet = storedSet || requestedSet || "common";
         this.market = storedMarket || this.dealInitialMarket();
         if (!storedMarket) await this.state.storage.put("market", this.market);
         if (!storedLang) await this.state.storage.put("lang", this.lang);
+        if (!storedSet) await this.state.storage.put("cardSet", this.cardSet);
       });
     }
     return this._ready;
   }
 
   dealInitialMarket() {
-    const low = shuffle(LOW_IDS);
-    const high = shuffle(HIGH_IDS);
+    const idSet = new Set(idsForCardSet(this.cardSet));
+    const low = shuffle(LOW_IDS.filter((id) => idSet.has(id)));
+    const high = shuffle(HIGH_IDS.filter((id) => idSet.has(id)));
     return {
       marketLow: low.slice(0, LOW_SLOTS),
       marketHigh: high.slice(0, HIGH_SLOTS),
@@ -58,7 +69,9 @@ export class MarketRoom {
   async fetch(request) {
     const url = new URL(request.url);
     const requestedLang = url.searchParams.get("lang") === "en" ? "en" : "es";
-    await this.ensureReady(requestedLang);
+    const requestedSetParam = url.searchParams.get("set");
+    const requestedSet = CARD_SETS.includes(requestedSetParam) ? requestedSetParam : "common";
+    await this.ensureReady(requestedLang, requestedSet);
 
     if (url.pathname.endsWith("/ws")) {
       if (request.headers.get("Upgrade") !== "websocket") {
@@ -76,7 +89,7 @@ export class MarketRoom {
   handleSession(ws) {
     ws.accept();
     this.sockets.add(ws);
-    this.send(ws, { type: "state", market: this.market, viewers: this.sockets.size, lang: this.lang });
+    this.send(ws, { type: "state", market: this.market, viewers: this.sockets.size, lang: this.lang, cardSet: this.cardSet });
     this.broadcastViewers();
 
     ws.addEventListener("message", (evt) => {
@@ -114,12 +127,15 @@ export class MarketRoom {
     if (hi !== -1) return { zone: "marketHigh", index: hi };
     const di = this.market.discard.indexOf(cardId);
     if (di !== -1) return { zone: "discard", index: di };
-    if (ALL_IDS.includes(cardId)) return { zone: "pool", index: -1 };
+    if (idsForCardSet(this.cardSet).includes(cardId)) return { zone: "pool", index: -1 };
     return null;
   }
 
   applyMove(ws, cardId, targetZone, targetIndex) {
-    if (!ALL_IDS.includes(cardId)) return;
+    if (!idsForCardSet(this.cardSet).includes(cardId)) {
+      this.send(ws, { type: "error", message: MSG[this.lang].notAvailable });
+      return;
+    }
     const from = this.locate(cardId);
     if (!from) return;
 
@@ -170,7 +186,7 @@ export class MarketRoom {
 
   async persistAndBroadcast() {
     await this.state.storage.put("market", this.market);
-    this.broadcast({ type: "state", market: this.market, viewers: this.sockets.size, lang: this.lang });
+    this.broadcast({ type: "state", market: this.market, viewers: this.sockets.size, lang: this.lang, cardSet: this.cardSet });
   }
 
   broadcastViewers() {

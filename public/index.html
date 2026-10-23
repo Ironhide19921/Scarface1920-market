@@ -134,6 +134,21 @@
   </div>
 </div>
 
+<div id="cardSetModal" class="confirm-modal" hidden>
+  <div class="zoom-backdrop"></div>
+  <div class="confirm-box">
+    <p data-i18n="chooseCardSet">Choose which cards this room will use:</p>
+    <div class="confirm-actions card-set-actions">
+      <button type="button" class="btn btn-secondary" data-set="common" data-i18n="cardSetCommon">Common cards</button>
+      <button type="button" class="btn btn-secondary" data-set="nightdeck" data-i18n="cardSetNightDeck">Night Deck cards</button>
+      <button type="button" class="btn btn-primary" data-set="both" data-i18n="cardSetBoth">Both</button>
+    </div>
+    <div class="confirm-actions">
+      <button id="cardSetCancel" class="btn btn-tiny" data-i18n="cancel">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <script src="js/app.js"></script>
 </body>
 </html>
