@@ -37,6 +37,7 @@
 
     <div class="landing-actions">
       <button id="btnCreate" class="btn btn-primary" data-i18n="createRoom">Crear sala nueva</button>
+      <button id="btnSoloNewGame" class="btn btn-secondary" hidden>New solo game</button>
 
       <div class="divider"><span data-i18n="or">o</span></div>
 
@@ -109,6 +110,99 @@
         <h3 class="tier-label tier-high" data-i18n="levelHigh">Nivel 4–5</h3>
         <div id="poolGridHigh" class="card-grid pool-grid"></div>
       </div>
+    </section>
+  </main>
+</div>
+
+<div id="soloScreen" class="screen" hidden>
+  <header class="room-header">
+    <div class="room-header-left">
+      <button type="button" id="btnSoloHome" class="brand-mini" title="Back to home" data-i18n-title="backToHomeTitle">SCARFACE 1920</button>
+    </div>
+    <div class="room-header-center">
+      <span class="room-code"><span data-i18n="soloTitle">Solo Game</span></span>
+    </div>
+    <div class="room-header-right">
+      <button id="btnSoloFinish" class="btn btn-secondary btn-small" data-i18n="soloFinish">Finish</button>
+      <button id="btnSoloRestart" class="btn btn-danger btn-small" data-i18n="soloRestart">Restart</button>
+    </div>
+  </header>
+
+  <main class="room-main solo-main">
+    <section class="solo-decks-section">
+      <h2 class="section-title" data-i18n="soloDecksTitle">Enforcer Decks</h2>
+      <div class="solo-decks-row">
+        <div class="solo-deck-pile">
+          <div class="pile-face pile-back pile-back-ab">A</div>
+          <div class="pile-info">
+            <span class="pile-label" data-i18n="soloDeckA">Deck A</span>
+            <span class="pile-count" id="soloCountA">0</span>
+          </div>
+          <button type="button" class="btn btn-secondary btn-tiny" id="btnSoloAddA" data-i18n="soloAddToTop">Add to Enforcer deck</button>
+        </div>
+        <div class="solo-deck-pile">
+          <div class="pile-face pile-back pile-back-ab">B</div>
+          <div class="pile-info">
+            <span class="pile-label" data-i18n="soloDeckB">Deck B</span>
+            <span class="pile-count" id="soloCountB">0</span>
+          </div>
+          <button type="button" class="btn btn-secondary btn-tiny" id="btnSoloAddB" data-i18n="soloAddToTop">Add to Enforcer deck</button>
+        </div>
+        <div class="solo-deck-pile">
+          <div class="pile-face pile-back pile-back-enforcer">👊</div>
+          <div class="pile-info">
+            <span class="pile-label" data-i18n="soloEnforcerDeck">Enforcer Deck</span>
+            <span class="pile-count" id="soloCountEnforcer">0</span>
+          </div>
+        </div>
+        <div class="solo-deck-pile">
+          <div class="pile-face pile-back pile-back-discard">🗑</div>
+          <div class="pile-info">
+            <span class="pile-label" data-i18n="discard">Discard</span>
+            <span class="pile-count" id="soloCountDiscard">0</span>
+          </div>
+          <button type="button" class="btn btn-secondary btn-tiny" id="btnSoloReshuffleDiscard" data-i18n="soloReshuffleBack">Reshuffle into deck</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="solo-turn-section">
+      <h2 class="section-title" data-i18n="soloTurnSetup">Enforcer Turn</h2>
+      <div class="solo-counters">
+        <div class="solo-counter">
+          <span class="solo-counter-label" data-i18n="soloCardsLabel">Plan cards</span>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" id="soloCardsMinus" aria-label="-">−</button>
+            <span class="stepper-value" id="soloCardsValue">1</span>
+            <button type="button" class="stepper-btn" id="soloCardsPlus" aria-label="+">+</button>
+          </div>
+        </div>
+        <div class="solo-counter">
+          <span class="solo-counter-label" data-i18n="soloActionsLabel">Actions</span>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" id="soloActionsMinus" aria-label="-">−</button>
+            <span class="stepper-value" id="soloActionsValue">2</span>
+            <button type="button" class="stepper-btn" id="soloActionsPlus" aria-label="+">+</button>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" id="btnSoloConfirmTurn" data-i18n="soloConfirmTurn">Confirm turn</button>
+      </div>
+    </section>
+
+    <section class="solo-reveal-section">
+      <div class="solo-reveal-header">
+        <h2 class="section-title" data-i18n="soloRevealTitle">Current Turn</h2>
+        <span id="soloActionsRemaining" class="solo-actions-remaining" hidden></span>
+      </div>
+      <div class="solo-reveal-toolbar" id="soloRevealToolbar" hidden>
+        <button type="button" class="btn btn-secondary btn-small" id="btnSoloPrev" data-i18n="soloPrev">◀ Back</button>
+        <button type="button" class="btn btn-primary btn-small" id="btnSoloMark" data-i18n="soloMark">Spend action</button>
+        <button type="button" class="btn btn-secondary btn-small" id="btnSoloUndo" data-i18n="soloUndo">Undo</button>
+        <button type="button" class="btn btn-secondary btn-small" id="btnSoloNext" data-i18n="soloNext">Next ▶</button>
+        <button type="button" class="btn btn-danger btn-small" id="btnSoloDiscardTurn" data-i18n="soloDiscardTurn">Discard turn</button>
+      </div>
+      <div id="soloRevealGrid" class="solo-reveal-grid"></div>
+      <p id="soloEmptyHint" class="solo-empty-hint" data-i18n="soloEmptyHint">Choose how many cards and actions, then confirm the turn.</p>
     </section>
   </main>
 </div>

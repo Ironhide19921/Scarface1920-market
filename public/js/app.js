@@ -48,6 +48,35 @@
       roomCodeToast: (code) => `Código de sala: ${code}`,
       selectedCard: (name) => `Seleccionado: ${name} — toca el destino (otra carta o un espacio).`,
       selectedEmpty: "Espacio seleccionado — toca una carta para colocarla ahí.",
+
+      soloNewGame: "Nueva partida solitario",
+      soloResumeGame: "Reanudar partida solitario",
+      soloTitle: "Partida Solitario",
+      soloDecksTitle: "Mazos del Enforcer",
+      soloDeckA: "Mazo A",
+      soloDeckB: "Mazo B",
+      soloEnforcerDeck: "Mazo del Enforcer",
+      soloAddToTop: "Agregar al mazo del Enforcer",
+      soloReshuffleBack: "Mezclar descarte en el mazo",
+      soloTurnSetup: "Turno del Enforcer",
+      soloCardsLabel: "Cartas del plan",
+      soloActionsLabel: "Acciones",
+      soloConfirmTurn: "Confirmar turno",
+      soloRevealTitle: "Turno actual",
+      soloPrev: "◀ Atrás",
+      soloNext: "Siguiente ▶",
+      soloMark: "Gastar acción",
+      soloUndo: "Deshacer",
+      soloDiscardTurn: "Descartar turno",
+      soloEmptyHint: "Elegí la cantidad de cartas y acciones, y confirmá el turno.",
+      soloRestart: "Reiniciar",
+      soloRestartConfirmText: "¿Reiniciar la partida solitario? Todos los mazos y el progreso volverán al comienzo.",
+      soloFinish: "Finalizar",
+      soloFinishConfirmText: "¿Finalizar la partida solitario? El progreso se borrará y la próxima vez empezarás una partida nueva.",
+      soloActionsRemainingText: (n, total) => `Acciones restantes: ${n}/${total}`,
+      soloDeckEmptyToast: "No quedan cartas en ese mazo.",
+      soloNoActionsToast: "No quedan acciones disponibles.",
+      soloNoCardsToast: "No quedan cartas para formar el turno del Enforcer.",
     },
     en: {
       pageTitle: "Associate Market — Scarface 1920",
@@ -92,6 +121,35 @@
       roomCodeToast: (code) => `Room code: ${code}`,
       selectedCard: (name) => `Selected: ${name} — tap the destination (another card or a slot).`,
       selectedEmpty: "Slot selected — tap a card to place it there.",
+
+      soloNewGame: "New solo game",
+      soloResumeGame: "Resume solo game",
+      soloTitle: "Solo Game",
+      soloDecksTitle: "Enforcer Decks",
+      soloDeckA: "Deck A",
+      soloDeckB: "Deck B",
+      soloEnforcerDeck: "Enforcer Deck",
+      soloAddToTop: "Add to Enforcer deck",
+      soloReshuffleBack: "Reshuffle into deck",
+      soloTurnSetup: "Enforcer Turn",
+      soloCardsLabel: "Plan cards",
+      soloActionsLabel: "Actions",
+      soloConfirmTurn: "Confirm turn",
+      soloRevealTitle: "Current Turn",
+      soloPrev: "◀ Back",
+      soloNext: "Next ▶",
+      soloMark: "Spend action",
+      soloUndo: "Undo",
+      soloDiscardTurn: "Discard turn",
+      soloEmptyHint: "Choose how many cards and actions, then confirm the turn.",
+      soloRestart: "Restart",
+      soloRestartConfirmText: "Restart the solo game? All decks and progress will be shuffled back to the start.",
+      soloFinish: "Finish",
+      soloFinishConfirmText: "Finish the solo game? Progress will be cleared and you'll start a new game next time.",
+      soloActionsRemainingText: (n, total) => `Actions remaining: ${n}/${total}`,
+      soloDeckEmptyToast: "No cards left in that deck.",
+      soloNoActionsToast: "No actions remaining.",
+      soloNoCardsToast: "No cards left to form the Enforcer's turn.",
     },
   };
 
@@ -140,6 +198,8 @@
     document.querySelectorAll(".lang-btn").forEach((btn) => {
       btn.classList.toggle("active", btn.dataset.lang === lang);
     });
+    els.btnSoloNewGame.hidden = lang !== "en";
+    updateSoloButtonLabel();
   }
 
   function setLang(next) {
@@ -153,6 +213,7 @@
     landing: document.getElementById("landing"),
     roomScreen: document.getElementById("roomScreen"),
     btnCreate: document.getElementById("btnCreate"),
+    btnSoloNewGame: document.getElementById("btnSoloNewGame"),
     formJoin: document.getElementById("formJoin"),
     inputCode: document.getElementById("inputCode"),
     landingError: document.getElementById("landingError"),
@@ -193,6 +254,34 @@
 
     cardSetModal: document.getElementById("cardSetModal"),
     cardSetCancel: document.getElementById("cardSetCancel"),
+
+    soloScreen: document.getElementById("soloScreen"),
+    btnSoloHome: document.getElementById("btnSoloHome"),
+    btnSoloFinish: document.getElementById("btnSoloFinish"),
+    btnSoloRestart: document.getElementById("btnSoloRestart"),
+    soloCountA: document.getElementById("soloCountA"),
+    soloCountB: document.getElementById("soloCountB"),
+    soloCountEnforcer: document.getElementById("soloCountEnforcer"),
+    soloCountDiscard: document.getElementById("soloCountDiscard"),
+    btnSoloAddA: document.getElementById("btnSoloAddA"),
+    btnSoloAddB: document.getElementById("btnSoloAddB"),
+    btnSoloReshuffleDiscard: document.getElementById("btnSoloReshuffleDiscard"),
+    soloCardsValue: document.getElementById("soloCardsValue"),
+    soloActionsValue: document.getElementById("soloActionsValue"),
+    soloCardsMinus: document.getElementById("soloCardsMinus"),
+    soloCardsPlus: document.getElementById("soloCardsPlus"),
+    soloActionsMinus: document.getElementById("soloActionsMinus"),
+    soloActionsPlus: document.getElementById("soloActionsPlus"),
+    btnSoloConfirmTurn: document.getElementById("btnSoloConfirmTurn"),
+    soloActionsRemaining: document.getElementById("soloActionsRemaining"),
+    soloRevealToolbar: document.getElementById("soloRevealToolbar"),
+    btnSoloPrev: document.getElementById("btnSoloPrev"),
+    btnSoloNext: document.getElementById("btnSoloNext"),
+    btnSoloMark: document.getElementById("btnSoloMark"),
+    btnSoloUndo: document.getElementById("btnSoloUndo"),
+    btnSoloDiscardTurn: document.getElementById("btnSoloDiscardTurn"),
+    soloRevealGrid: document.getElementById("soloRevealGrid"),
+    soloEmptyHint: document.getElementById("soloEmptyHint"),
   };
 
   let cardsById = {};     // id -> card data (bilingual)
@@ -286,6 +375,20 @@
 
   document.querySelectorAll(".lang-btn").forEach((btn) => {
     btn.addEventListener("click", () => setLang(btn.dataset.lang));
+  });
+
+  els.btnSoloNewGame.addEventListener("click", () => {
+    soloState.started = true;
+    saveSoloState();
+    updateSoloButtonLabel();
+    els.landing.hidden = true;
+    els.soloScreen.hidden = false;
+    renderSolo();
+  });
+
+  els.btnSoloHome.addEventListener("click", () => {
+    els.soloScreen.hidden = true;
+    els.landing.hidden = false;
   });
 
   // ---------- Room entry ----------
@@ -799,6 +902,307 @@
     } catch {
       flashToast(t("roomCodeToast")(roomCode));
     }
+  });
+
+  // ---------- Solo game ----------
+
+  const SOLO_STORAGE_KEY = "scarface-solo-v1";
+  const SOLO_ROWS = 4;
+
+  function buildSoloCards() {
+    const cards = [];
+    for (let n = 1; n <= 36; n++) {
+      const letter = n <= 6 ? "C" : n <= 24 ? "B" : "A";
+      cards.push({ id: `solo-${String(n).padStart(2, "0")}`, letter });
+    }
+    return cards;
+  }
+
+  const SOLO_CARDS = buildSoloCards();
+  const SOLO_IDS_BY_LETTER = {
+    A: SOLO_CARDS.filter((c) => c.letter === "A").map((c) => c.id),
+    B: SOLO_CARDS.filter((c) => c.letter === "B").map((c) => c.id),
+    C: SOLO_CARDS.filter((c) => c.letter === "C").map((c) => c.id),
+  };
+
+  function soloShuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function soloImageSrc(id) {
+    return `assets/cards/solo/${id}.jpg`;
+  }
+
+  function freshSoloState() {
+    return {
+      deckA: soloShuffle(SOLO_IDS_BY_LETTER.A),
+      deckB: soloShuffle(SOLO_IDS_BY_LETTER.B),
+      enforcerDeck: soloShuffle(SOLO_IDS_BY_LETTER.C),
+      enforcerDiscard: [],
+      cardsCount: 1,
+      actionsCount: 2,
+      turn: null, // { cards:[id,...], actionsTotal, actionsRemaining, row, col, marks:["row-col",...] }
+      started: false,
+    };
+  }
+
+  function loadSoloState() {
+    try {
+      const raw = localStorage.getItem(SOLO_STORAGE_KEY);
+      if (!raw) return freshSoloState();
+      const parsed = JSON.parse(raw);
+      if (!parsed || !Array.isArray(parsed.deckA) || !Array.isArray(parsed.enforcerDeck)) return freshSoloState();
+      // Saves from before the "started" flag existed always represent a game
+      // already in progress.
+      if (typeof parsed.started !== "boolean") parsed.started = true;
+      return parsed;
+    } catch {
+      return freshSoloState();
+    }
+  }
+
+  let soloState = loadSoloState();
+
+  function saveSoloState() {
+    try {
+      localStorage.setItem(SOLO_STORAGE_KEY, JSON.stringify(soloState));
+    } catch {
+      /* storage may be unavailable (private mode, quota) */
+    }
+  }
+
+  function soloCombinedRemaining() {
+    return soloState.enforcerDeck.length + soloState.enforcerDiscard.length;
+  }
+
+  function updateSoloButtonLabel() {
+    els.btnSoloNewGame.textContent = soloState.started ? t("soloResumeGame") : t("soloNewGame");
+  }
+
+  function soloDrawTurn() {
+    if (soloState.enforcerDeck.length < soloState.cardsCount && soloState.enforcerDiscard.length > 0) {
+      soloState.enforcerDeck = soloState.enforcerDeck.concat(soloShuffle(soloState.enforcerDiscard));
+      soloState.enforcerDiscard = [];
+    }
+    const n = Math.min(soloState.cardsCount, soloState.enforcerDeck.length);
+    if (n === 0) {
+      flashToast(t("soloNoCardsToast"));
+      return;
+    }
+    const drawn = soloState.enforcerDeck.splice(0, n);
+    soloState.turn = {
+      cards: drawn,
+      actionsTotal: soloState.actionsCount,
+      actionsRemaining: soloState.actionsCount,
+      row: 0,
+      col: 0,
+      marks: [],
+    };
+    saveSoloState();
+    renderSolo();
+  }
+
+  function soloCursorIndex() {
+    if (!soloState.turn) return 0;
+    return soloState.turn.row * soloState.turn.cards.length + soloState.turn.col;
+  }
+
+  function soloSetCursorIndex(index) {
+    const turn = soloState.turn;
+    if (!turn) return;
+    const n = turn.cards.length;
+    const max = SOLO_ROWS * n - 1;
+    const clamped = Math.max(0, Math.min(max, index));
+    turn.row = Math.floor(clamped / n);
+    turn.col = clamped % n;
+  }
+
+  function soloAddFromDeck(letter) {
+    const key = letter === "A" ? "deckA" : "deckB";
+    if (soloState[key].length === 0) {
+      flashToast(t("soloDeckEmptyToast"));
+      return;
+    }
+    const [card] = soloState[key].splice(0, 1);
+    soloState.enforcerDeck.unshift(card);
+    saveSoloState();
+    renderSolo();
+  }
+
+  function soloReshuffleDiscard() {
+    if (soloState.enforcerDiscard.length === 0) return;
+    soloState.enforcerDeck = soloState.enforcerDeck.concat(soloShuffle(soloState.enforcerDiscard));
+    soloState.enforcerDiscard = [];
+    saveSoloState();
+    renderSolo();
+  }
+
+  function soloDiscardTurn() {
+    if (!soloState.turn) return;
+    soloState.enforcerDiscard.push(...soloState.turn.cards);
+    soloState.turn = null;
+    saveSoloState();
+    renderSolo();
+  }
+
+  function soloSpendAction() {
+    const turn = soloState.turn;
+    if (!turn) return;
+    const key = `${turn.row}-${turn.col}`;
+    if (turn.marks.includes(key)) return; // already marked - use Undo instead
+    if (turn.actionsRemaining <= 0) {
+      flashToast(t("soloNoActionsToast"));
+      return;
+    }
+    turn.marks.push(key);
+    turn.actionsRemaining--;
+    saveSoloState();
+    renderSolo();
+  }
+
+  function soloUndoAction() {
+    const turn = soloState.turn;
+    if (!turn) return;
+    const key = `${turn.row}-${turn.col}`;
+    const idx = turn.marks.indexOf(key);
+    if (idx === -1) return; // the selected cell isn't marked - nothing to undo
+    turn.marks.splice(idx, 1);
+    turn.actionsRemaining++;
+    saveSoloState();
+    renderSolo();
+  }
+
+  function soloCardEl(id, col) {
+    const div = document.createElement("div");
+    div.className = "solo-card";
+    div.innerHTML = `<img src="${soloImageSrc(id)}" alt="${id}" loading="lazy" />`;
+    const turn = soloState.turn;
+    for (let row = 0; row < SOLO_ROWS; row++) {
+      const band = document.createElement("div");
+      band.className = "solo-row-band";
+      band.dataset.row = row;
+      if (turn) {
+        if (turn.marks.includes(`${row}-${col}`)) band.classList.add("marked");
+        if (turn.row === row && turn.col === col) band.classList.add("cursor");
+      }
+      div.appendChild(band);
+    }
+    return div;
+  }
+
+  function renderSolo() {
+    els.soloCountA.textContent = soloState.deckA.length;
+    els.soloCountB.textContent = soloState.deckB.length;
+    els.soloCountEnforcer.textContent = soloState.enforcerDeck.length;
+    els.soloCountDiscard.textContent = soloState.enforcerDiscard.length;
+    els.btnSoloAddA.disabled = soloState.deckA.length === 0;
+    els.btnSoloAddB.disabled = soloState.deckB.length === 0;
+    els.btnSoloReshuffleDiscard.disabled = soloState.enforcerDiscard.length === 0;
+
+    const turn = soloState.turn;
+
+    els.soloCardsValue.textContent = soloState.cardsCount;
+    els.soloCardsMinus.disabled = soloState.cardsCount <= 1;
+    els.soloCardsPlus.disabled = soloState.cardsCount >= 10;
+
+    // While a turn is active, this counter tracks the actions still left to
+    // spend on it (and locks, since the budget for an in-progress turn
+    // shouldn't change); once discarded it goes back to being the editable
+    // setting for the next turn.
+    if (turn) {
+      els.soloActionsValue.textContent = turn.actionsRemaining;
+      els.soloActionsMinus.disabled = true;
+      els.soloActionsPlus.disabled = true;
+    } else {
+      els.soloActionsValue.textContent = soloState.actionsCount;
+      els.soloActionsMinus.disabled = soloState.actionsCount <= 1;
+      els.soloActionsPlus.disabled = soloState.actionsCount >= 20;
+    }
+    els.btnSoloConfirmTurn.disabled = soloCombinedRemaining() === 0;
+    els.soloEmptyHint.hidden = !!turn;
+    els.soloRevealToolbar.hidden = !turn;
+    els.soloRevealGrid.innerHTML = "";
+
+    if (turn) {
+      els.soloActionsRemaining.hidden = false;
+      els.soloActionsRemaining.textContent = t("soloActionsRemainingText")(turn.actionsRemaining, turn.actionsTotal);
+      turn.cards.forEach((id, col) => els.soloRevealGrid.appendChild(soloCardEl(id, col)));
+
+      const idx = soloCursorIndex();
+      const max = SOLO_ROWS * turn.cards.length - 1;
+      els.btnSoloPrev.disabled = idx <= 0;
+      els.btnSoloNext.disabled = idx >= max;
+      const marked = turn.marks.includes(`${turn.row}-${turn.col}`);
+      els.btnSoloMark.disabled = marked || turn.actionsRemaining <= 0;
+      els.btnSoloUndo.disabled = !marked;
+    } else {
+      els.soloActionsRemaining.hidden = true;
+    }
+  }
+
+  els.btnSoloAddA.addEventListener("click", () => soloAddFromDeck("A"));
+  els.btnSoloAddB.addEventListener("click", () => soloAddFromDeck("B"));
+  els.btnSoloReshuffleDiscard.addEventListener("click", soloReshuffleDiscard);
+
+  els.soloCardsMinus.addEventListener("click", () => {
+    soloState.cardsCount = Math.max(1, soloState.cardsCount - 1);
+    saveSoloState();
+    renderSolo();
+  });
+  els.soloCardsPlus.addEventListener("click", () => {
+    soloState.cardsCount = Math.min(10, soloState.cardsCount + 1);
+    saveSoloState();
+    renderSolo();
+  });
+  els.soloActionsMinus.addEventListener("click", () => {
+    soloState.actionsCount = Math.max(1, soloState.actionsCount - 1);
+    saveSoloState();
+    renderSolo();
+  });
+  els.soloActionsPlus.addEventListener("click", () => {
+    soloState.actionsCount = Math.min(20, soloState.actionsCount + 1);
+    saveSoloState();
+    renderSolo();
+  });
+
+  els.btnSoloConfirmTurn.addEventListener("click", soloDrawTurn);
+  els.btnSoloDiscardTurn.addEventListener("click", soloDiscardTurn);
+  els.btnSoloMark.addEventListener("click", soloSpendAction);
+  els.btnSoloUndo.addEventListener("click", soloUndoAction);
+  els.btnSoloPrev.addEventListener("click", () => {
+    soloSetCursorIndex(soloCursorIndex() - 1);
+    saveSoloState();
+    renderSolo();
+  });
+  els.btnSoloNext.addEventListener("click", () => {
+    soloSetCursorIndex(soloCursorIndex() + 1);
+    saveSoloState();
+    renderSolo();
+  });
+
+  els.btnSoloRestart.addEventListener("click", () => {
+    openConfirm(t("soloRestartConfirmText"), () => {
+      soloState = freshSoloState();
+      soloState.started = true; // still playing - just reset the decks
+      saveSoloState();
+      updateSoloButtonLabel();
+      renderSolo();
+    });
+  });
+
+  els.btnSoloFinish.addEventListener("click", () => {
+    openConfirm(t("soloFinishConfirmText"), () => {
+      soloState = freshSoloState();
+      saveSoloState();
+      updateSoloButtonLabel();
+      els.soloScreen.hidden = true;
+      els.landing.hidden = false;
+    });
   });
 
   // ---------- Boot ----------
