@@ -47,6 +47,8 @@
       </form>
     </div>
     <p id="landingError" class="landing-error" hidden></p>
+
+    <button id="btnDonate" type="button" class="btn btn-tiny btn-donate" data-i18n="donateBtn">❤ Donar</button>
   </div>
 </div>
 
@@ -240,6 +242,36 @@
     <div class="confirm-actions">
       <button id="cardSetCancel" class="btn btn-tiny" data-i18n="cancel">Cancelar</button>
     </div>
+  </div>
+</div>
+
+<div id="donateModal" class="confirm-modal" hidden>
+  <div class="zoom-backdrop"></div>
+  <div class="confirm-box donate-box">
+
+    <div id="donateMethodStep">
+      <p data-i18n="donateIntro">Si te gusta Scarface Market, podés invitarnos un café ☕</p>
+      <div class="confirm-actions card-set-actions">
+        <button type="button" id="btnChooseMp" class="btn btn-secondary" data-i18n="donateMp">Donar con Mercado Pago</button>
+        <button type="button" id="btnChoosePaypal" class="btn btn-secondary" data-i18n="donatePaypal">Donar con PayPal</button>
+      </div>
+      <div class="confirm-actions">
+        <button id="donateCancel" class="btn btn-tiny" data-i18n="cancel">Cancelar</button>
+      </div>
+    </div>
+
+    <div id="donateAmountStep" hidden>
+      <div class="donate-mp">
+        <label id="donateAmountLabelEl" for="donateAmount">Monto</label>
+        <input id="donateAmount" type="number" inputmode="numeric" />
+        <button id="btnDonateConfirm" type="button" class="btn btn-primary" data-i18n="donateContinue">Continuar</button>
+      </div>
+      <p id="donateError" class="landing-error" hidden></p>
+      <div class="confirm-actions">
+        <button id="donateBack" class="btn btn-tiny" data-i18n="back">Atrás</button>
+      </div>
+    </div>
+
   </div>
 </div>
 

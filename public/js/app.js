@@ -77,6 +77,17 @@
       soloDeckEmptyToast: "No quedan cartas en ese mazo.",
       soloNoActionsToast: "No quedan acciones disponibles.",
       soloNoCardsToast: "No quedan cartas para formar el turno del Enforcer.",
+
+      donateBtn: "❤ Donar",
+      donateIntro: "Si te gusta Scarface Market, podés invitarnos un café ☕",
+      donateAmountLabelMp: "Monto (ARS)",
+      donateAmountLabelPaypal: "Monto (USD)",
+      donateMp: "Donar con Mercado Pago",
+      donatePaypal: "Donar con PayPal",
+      donateContinue: "Continuar",
+      back: "Atrás",
+      donateInvalidAmount: "Ingresá un monto válido.",
+      donateError: "No se pudo iniciar el pago. Probá de nuevo en un momento.",
     },
     en: {
       pageTitle: "Associate Market — Scarface 1920",
@@ -150,6 +161,17 @@
       soloDeckEmptyToast: "No cards left in that deck.",
       soloNoActionsToast: "No actions remaining.",
       soloNoCardsToast: "No cards left to form the Enforcer's turn.",
+
+      donateBtn: "❤ Donate",
+      donateIntro: "If you enjoy Scarface Market, you can buy us a coffee ☕",
+      donateAmountLabelMp: "Amount (ARS)",
+      donateAmountLabelPaypal: "Amount (USD)",
+      donateMp: "Donate with Mercado Pago",
+      donatePaypal: "Donate with PayPal",
+      donateContinue: "Continue",
+      back: "Back",
+      donateInvalidAmount: "Enter a valid amount.",
+      donateError: "Couldn't start the payment. Please try again in a moment.",
     },
   };
 
@@ -254,6 +276,19 @@
 
     cardSetModal: document.getElementById("cardSetModal"),
     cardSetCancel: document.getElementById("cardSetCancel"),
+
+    btnDonate: document.getElementById("btnDonate"),
+    donateModal: document.getElementById("donateModal"),
+    donateMethodStep: document.getElementById("donateMethodStep"),
+    donateAmountStep: document.getElementById("donateAmountStep"),
+    btnChooseMp: document.getElementById("btnChooseMp"),
+    btnChoosePaypal: document.getElementById("btnChoosePaypal"),
+    donateAmountLabelEl: document.getElementById("donateAmountLabelEl"),
+    donateAmount: document.getElementById("donateAmount"),
+    btnDonateConfirm: document.getElementById("btnDonateConfirm"),
+    donateError: document.getElementById("donateError"),
+    donateCancel: document.getElementById("donateCancel"),
+    donateBack: document.getElementById("donateBack"),
 
     soloScreen: document.getElementById("soloScreen"),
     btnSoloHome: document.getElementById("btnSoloHome"),
@@ -375,6 +410,93 @@
 
   document.querySelectorAll(".lang-btn").forEach((btn) => {
     btn.addEventListener("click", () => setLang(btn.dataset.lang));
+  });
+
+  // ---------- Donations ----------
+
+  const PAYPAL_DONATE_BASE =
+    "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=" +
+    encodeURIComponent("gera_lps@hotmail.com.ar") +
+    "&currency_code=USD&item_name=" +
+    encodeURIComponent("Donación Scarface Market");
+
+  let donateMethod = null; // "mp" | "paypal"
+
+  function openDonateModal() {
+    donateMethod = null;
+    els.donateError.hidden = true;
+    els.donateAmount.value = "";
+    els.donateMethodStep.hidden = false;
+    els.donateAmountStep.hidden = true;
+    els.donateModal.hidden = false;
+  }
+
+  function closeDonateModal() {
+    els.donateModal.hidden = true;
+  }
+
+  function openDonateAmountStep(method) {
+    donateMethod = method;
+    els.donateError.hidden = true;
+    els.donateAmount.value = "";
+    if (method === "mp") {
+      els.donateAmountLabelEl.textContent = t("donateAmountLabelMp");
+      els.donateAmount.min = "100";
+      els.donateAmount.step = "50";
+    } else {
+      els.donateAmountLabelEl.textContent = t("donateAmountLabelPaypal");
+      els.donateAmount.min = "1";
+      els.donateAmount.step = "1";
+    }
+    els.donateMethodStep.hidden = true;
+    els.donateAmountStep.hidden = false;
+    els.donateAmount.focus();
+  }
+
+  els.btnDonate.addEventListener("click", openDonateModal);
+  els.donateCancel.addEventListener("click", closeDonateModal);
+  els.donateModal.querySelector(".zoom-backdrop").addEventListener("click", closeDonateModal);
+
+  els.btnChooseMp.addEventListener("click", () => openDonateAmountStep("mp"));
+  els.btnChoosePaypal.addEventListener("click", () => openDonateAmountStep("paypal"));
+
+  els.donateBack.addEventListener("click", () => {
+    els.donateError.hidden = true;
+    els.donateAmountStep.hidden = true;
+    els.donateMethodStep.hidden = false;
+  });
+
+  els.btnDonateConfirm.addEventListener("click", async () => {
+    const amount = Number(els.donateAmount.value);
+    const min = donateMethod === "mp" ? 100 : 1;
+    if (!Number.isFinite(amount) || amount < min) {
+      els.donateError.textContent = t("donateInvalidAmount");
+      els.donateError.hidden = false;
+      return;
+    }
+    els.donateError.hidden = true;
+
+    if (donateMethod === "paypal") {
+      window.open(`${PAYPAL_DONATE_BASE}&amount=${encodeURIComponent(amount)}`, "_blank", "noopener");
+      closeDonateModal();
+      return;
+    }
+
+    els.btnDonateConfirm.disabled = true;
+    try {
+      const res = await fetch("/api/donate/mercadopago", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.init_point) throw new Error(data.error || "donation_failed");
+      location.href = data.init_point;
+    } catch (err) {
+      els.donateError.textContent = t("donateError");
+      els.donateError.hidden = false;
+      els.btnDonateConfirm.disabled = false;
+    }
   });
 
   els.btnSoloNewGame.addEventListener("click", () => {

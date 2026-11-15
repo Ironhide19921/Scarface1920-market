@@ -136,6 +136,8 @@ button {
   font-size: 0.95rem;
 }
 
+.btn-donate { margin-top: 20px; }
+
 /* ---------- Buttons ---------- */
 
 .btn {
@@ -478,6 +480,27 @@ button {
 .confirm-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: center; }
 .card-set-actions { flex-direction: column; }
 .card-set-actions .btn { width: 100%; }
+
+.donate-box { max-width: 340px; }
+.donate-mp {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+.donate-mp label { font-size: 0.8rem; color: var(--text-muted); text-align: left; }
+.donate-mp input {
+  padding: 12px;
+  border-radius: var(--radius);
+  border: 1px solid #3a332c;
+  background: var(--bg);
+  color: var(--parchment);
+  font-family: var(--font-title);
+  font-size: 1rem;
+  text-align: center;
+}
+.donate-mp input:focus { outline: 2px solid var(--gold); }
+#linkDonatePaypal { display: block; text-decoration: none; text-align: center; }
 
 /* ---------- Solo game ---------- */
 

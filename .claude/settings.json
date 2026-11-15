@@ -1,0 +1,5 @@
+{
+  "enabledPlugins": {
+    "mercadopago@claude-plugins-official": true
+  }
+}
